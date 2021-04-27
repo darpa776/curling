@@ -1,0 +1,80 @@
+number_of_frame = i;
+	Mat img_original;
+
+	//이미지파일을 로드하여 image에 저장  
+	img_original = imread("image1.png", IMREAD_COLOR);
+	if (img_original.empty())
+	{
+		cout << "Could not open or find the image" << std::endl;
+		return -1;
+	}
+
+	//그레이스케일 이미지로 변환  
+	cvtColor(img_original, img_gray, COLOR_BGR2GRAY);
+	//윈도우 생성  
+	//namedWindow("gray image", WINDOW_AUTOSIZE);
+	namedWindow("gray image", 0);
+	//namedWindow("result image", WINDOW_AUTOSIZE);
+	//윈도우에 출력  
+	imshow("gray image", img_gray);
+	//윈도우에 콜백함수를 등록
+	setMouseCallback("gray image", CallBackFunc, NULL);
+
+	cout << "왼쪽 위 - 오른쪽 위 - 왼쪽 아래, 오른쪽 아래 순으로 클릭해주세요" << endl;
+	int inkey;
+	inkey = waitKey();
+	if (inkey == 27)//esc 입력시
+	{
+		i = 1;
+		char savehomo[200];
+		Mat homog;
+		Mat makingvideo;
+		VideoWriter *outputVideo = new VideoWriter;
+		outputVideo->open("output.avi", VideoWriter::fourcc('X', 'V', 'I', 'D'), fps, Size(60, 552), false);
+
+		if (!outputVideo->isOpened())
+		{
+			cout << "동영상을 저장하기 위한 초기화 작업 중 에러 발생" << endl;
+			return 1;
+		}
+		while (1)
+		{
+			cout << i << "번째 이미지 저장 및 동영상생성 중" << endl;
+			sprintf_s(savehomo, "image%d.png", i++);
+			homog = imread(savehomo, IMREAD_COLOR);
+			if (homog.empty())
+			{
+				cout << "Could not open or find the image" << std::endl;
+				return -1;
+			}
+			cvtColor(homog, img_gray, COLOR_BGR2GRAY);
+			//namedWindow("gray image", WINDOW_AUTOSIZE);
+			//imshow("gray image", img_gray);	
+			//waitKey(1); // 100ms의 딜레이를 발생시킨다. 즉, 1초에 10장의 이미지를 저장하게 된다. 수정함.
+
+
+			//makingvideo = Mat::zeros(height, width, CV_32FC1);
+			makingvideo = homo(img_gray);
+
+			imwrite(savehomo, makingvideo); // img를 파일로 저장한다.			
+			imshow("RESULT", makingvideo);
+
+
+			waitKey(1);
+			*outputVideo << makingvideo;
+
+			if (i >= number_of_frame)
+			{
+
+				makingvideo.release();
+				break;
+			}
+			/*if (waitKey(30) == 27) // 영상이 재생되는 시간(30초) 동안 'esc' 키를 기다린다.
+			//30초 내에 입력되는 경우 루프를 빠져나간다.
+			{
+			cout << "esc key is pressed by user" << endl;
+			break;
+			}
+			*/
+		}
+	}
